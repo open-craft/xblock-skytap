@@ -25,13 +25,14 @@ setup(
     name='xblock-skytap',
     version='0.1',
     description='Skytap XBlock',
-    packages=['skytap'],
+    packages=['xblock_skytap'],
     install_requires=[
         'XBlock',
-        'xblock-utils'
+        'xblock-utils',
+        'skytap',
     ],
     entry_points={
-        'xblock.v1': 'skytap = skytap:SkytapXBlock',
+        'xblock.v1': 'skytap = xblock_skytap:SkytapXBlock',
     },
-    package_data=package_data("skytap", ["public", "templates"]),
+    package_data=package_data("xblock_skytap", ["public", "templates"]),
 )

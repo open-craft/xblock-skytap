@@ -1,6 +1,11 @@
 <h1>Activate exercise environment</h1>
 <form>
   <div>
+    {% for user in users %}
+      <span>User: {{ user.name }} ({{user.email}})
+    {% endfor %}
+  </div>
+  <div>
     <label>
       <span>Enter your email address:</span>
       <input type="text" name="learner_email">

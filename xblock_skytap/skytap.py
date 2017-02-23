@@ -59,4 +59,8 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlock):
         context['users'] = users.json()
         fragment = Fragment()
         fragment.add_content(loader.render_template("templates/skytap.html", context))
+        fragment.add_javascript_url(
+            self.runtime.local_resource_url(self, "public/js/src/skytap.js")
+        )
+        fragment.initialize_js("SkytapXBlock")
         return fragment

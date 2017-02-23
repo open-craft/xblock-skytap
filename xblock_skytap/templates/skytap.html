@@ -1,5 +1,5 @@
 <h1>Activate exercise environment</h1>
-<form>
+<form class="skytap-activation-form">
   <div>
     {% for user in users %}
       <span>User: {{ user.name }} ({{user.email}})
@@ -48,6 +48,13 @@
     </label>
   </div>
   <div>
-    <input type="submit" name="submit" value="Submit">
+    <input class="skytap-activate" type="submit" name="submit" value="Submit">
   </div>
+</form>
+
+<form class="skytap-launch-form">
+  <label>
+    <span>Congratulations! Your exercise environment is ready. Click here to launch it:</span>
+    <input type="submit" name="submit" value="Launch">
+  </label>
 </form>

@@ -30,10 +30,10 @@ def get_projects():
     return ('Dummy project A', 'Dummy project B', 'Dummy project C')
 
 
-def get_vm_images():
+def get_templates():
     """
     """
-    return ('Dummy image A', 'Dummy image B', 'Dummy image C')
+    return ('Dummy template A', 'Dummy template B', 'Dummy template C')
 
 
 def get_vms():
@@ -63,16 +63,16 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlock):
 
     project = String(
         display_name=_("Project"),
-        help=_("Skytap project to pull VM images/templates from."),
+        help=_("Skytap project to pull templates from."),
         scope=Scope.settings,
         values=get_projects,
     )
 
-    vm_images = String(
-        display_name=_("VM images/Templates"),
-        help=_("List of VM images/templates belonging to this exercise environment."),
+    templates = String(
+        display_name=_("Templates"),
+        help=_("List of templates belonging to this exercise environment."),
         scope=Scope.settings,
-        values=get_vm_images,
+        values=get_templates,
     )
 
     vms = String(
@@ -100,7 +100,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlock):
         multiline_editor=True,
     )
 
-    editable_fields = ("display_name", "project", "vm_images", "subscription_types", "organization_rules")
+    editable_fields = ("display_name", "project", "templates", "subscription_types", "organization_rules")
 
     def student_view(self, context):
         """

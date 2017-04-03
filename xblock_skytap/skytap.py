@@ -5,8 +5,6 @@
 
 from __future__ import absolute_import
 
-import skytap as skytap_library
-
 from xblock.core import XBlock
 from xblock.fields import Scope, String
 from xblock.fragment import Fragment
@@ -106,8 +104,6 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlock):
         """
         """
         context = context.copy() if context else {}
-        users = skytap_library.Users()
-        context['users'] = users.json()
         fragment = Fragment()
         fragment.add_content(loader.render_template("templates/skytap.html", context))
         fragment.add_javascript_url(

@@ -29,7 +29,6 @@ setup(
     install_requires=[
         'XBlock',
         'xblock-utils',
-        'skytap',
     ],
     entry_points={
         'xblock.v1': 'skytap = xblock_skytap:SkytapXBlock',

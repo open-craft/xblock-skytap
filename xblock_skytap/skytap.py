@@ -99,3 +99,11 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         )
         fragment.initialize_js("SkytapXBlock")
         return fragment
+
+    @XBlock.json_handler
+    def launch(self, keyboard_layout, suffix=""):
+        """
+        Launch Skytap environment.
+        """
+        self.preferred_keyboard_layout = keyboard_layout
+        return {}

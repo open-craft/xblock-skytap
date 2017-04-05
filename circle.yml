@@ -19,4 +19,4 @@ test:
     - "pep8 tests --max-line-length=120"
     - "pylint xblock_skytap --disable=all --enable=function-redefined,undefined-variable,unused-import,unused-variable"
     - "pylint tests --disable=all --enable=function-redefined,undefined-variable,unused-import,unused-variable"
-    - "python run_tests.py"
+    - "SELENIUM_BROWSER=chrome python run_tests.py"

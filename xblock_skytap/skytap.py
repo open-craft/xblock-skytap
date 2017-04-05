@@ -22,7 +22,7 @@ loader = ResourceLoader(__name__)
 
 # Classes ###########################################################
 
-@XBlock.wants('settings')
+@XBlock.wants("settings")
 class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     """
     """
@@ -90,9 +90,9 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         """
         context = context.copy() if context else {}
         fragment = Fragment()
-        context['display_name'] = self.display_name
-        context['keyboard_layouts'] = self.sorted_keyboard_layouts
-        context['preferred_keyboard_layout'] = self.preferred_keyboard_layout
+        context["display_name"] = self.display_name
+        context["keyboard_layouts"] = self.sorted_keyboard_layouts
+        context["preferred_keyboard_layout"] = self.preferred_keyboard_layout
         fragment.add_content(loader.render_template("templates/skytap.html", context))
         fragment.add_javascript_url(
             self.runtime.local_resource_url(self, "public/js/src/skytap.js")

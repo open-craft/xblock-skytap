@@ -68,12 +68,20 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         # Don't make assumptions about available keyboard layouts
         return default
 
+    @property
+    def sorted_keyboard_layouts(self):
+        """
+        Return list of available keyboard layouts, sorted by language name.
+        """
+        keyboard_layouts = self.get_keyboard_layouts()
+        return sorted(keyboard_layouts.items(), key=lambda i: i[1])
+
     def student_view(self, context):
         """
         """
         context = context.copy() if context else {}
         fragment = Fragment()
-        context['keyboard_layouts'] = self.get_keyboard_layouts()
+        context['keyboard_layouts'] = self.sorted_keyboard_layouts
         fragment.add_content(loader.render_template("templates/skytap.html", context))
         fragment.add_javascript_url(
             self.runtime.local_resource_url(self, "public/js/src/skytap.js")

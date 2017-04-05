@@ -1,5 +1,5 @@
 """
-Utils for Skytap XBlock
+Utils for the Skytap XBlock.
 """
 
 

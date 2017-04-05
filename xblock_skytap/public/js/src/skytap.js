@@ -1,4 +1,4 @@
-/* Javascript for SkytapXBlock. */
+/* Javascript for the Skytap XBlock. */
 
 function SkytapXBlock(runtime, element) {
     "use strict";

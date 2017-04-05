@@ -5,7 +5,10 @@
       <span>Select your preferred keyboard layout:</span>
       <select name="keyboard_layout">
         {% for language_code, language_name in keyboard_layouts %}
-          <option value="{{ language_code }}">{{ language_name }}</option>
+          <option value="{{ language_code }}"
+                  {% if language_code == preferred_keyboard_layout %}selected{% endif %}>
+            {{ language_name }}
+          </option>
         {% endfor %}
       </select>
     </label>

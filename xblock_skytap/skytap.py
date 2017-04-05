@@ -27,11 +27,20 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     """
     """
 
+    # Settings
+
     display_name = String(
         display_name=_("Title"),
         help=_("The title of this problem. Displayed to learners as a tooltip in the navigation bar."),
         scope=Scope.settings,
         default=_("Skytap XBlock"),
+    )
+
+    # User state
+
+    preferred_keyboard_layout = String(
+        scope=Scope.user_state,
+        default="us",
     )
 
     editable_fields = ("display_name",)
@@ -82,6 +91,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         context = context.copy() if context else {}
         fragment = Fragment()
         context['keyboard_layouts'] = self.sorted_keyboard_layouts
+        context['preferred_keyboard_layout'] = self.preferred_keyboard_layout
         fragment.add_content(loader.render_template("templates/skytap.html", context))
         fragment.add_javascript_url(
             self.runtime.local_resource_url(self, "public/js/src/skytap.js")

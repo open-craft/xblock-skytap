@@ -2,6 +2,7 @@
 Utils for Skytap XBlock
 """
 
+
 def _(text):
     """
     Dummy `gettext` replacement to make string extraction tools

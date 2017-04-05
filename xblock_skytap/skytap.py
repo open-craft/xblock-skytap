@@ -1,4 +1,12 @@
 """
+An XBlock that allows learners to access a Skytap (https://www.skytap.com/) environment for a given course.
+
+Note that the current implementation does not take care of provisioning the environment.
+Instead, it sends relevant data to a Boomi (https://boomi.com/) Listener
+which will identify the environment to use, add relevant VMs to it, and configure them
+according to the learner's preferences. Upon success, the Boomi Listener responds with a link
+to the sharing portal that lets the learner access the environment. The Skytap XBlock is responsible
+for opening the sharing portal link in a new browser tab.
 """
 
 # Imports ###########################################################
@@ -25,6 +33,7 @@ loader = ResourceLoader(__name__)
 @XBlock.wants("settings")
 class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     """
+    An XBlock that allows learners to access a Skytap (https://www.skytap.com/) environment for a given course.
     """
 
     # Settings
@@ -87,6 +96,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
 
     def student_view(self, context):
         """
+        View shown to students.
         """
         context = context.copy() if context else {}
         fragment = Fragment()

@@ -7,4 +7,5 @@ import unittest
 
 class TestSkytap(unittest.TestCase):
     """
+    Unit tests for the Skytap XBlock.
     """

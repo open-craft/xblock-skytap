@@ -9,3 +9,8 @@ class TestSkytap(StudioEditableBaseTest):
     """
     Integration tests for the Skytap XBlock.
     """
+
+    def test_keyboard_layouts(self):
+        """
+        """
+        pass

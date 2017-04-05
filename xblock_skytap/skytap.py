@@ -31,7 +31,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
 
     display_name = String(
         display_name=_("Title"),
-        help=_("The title of this problem. Displayed to learners as a tooltip in the navigation bar."),
+        help=_("The title of this block. Displayed above the controls for launching the exercise environment."),
         scope=Scope.settings,
         default=_("Skytap XBlock"),
     )
@@ -90,6 +90,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         """
         context = context.copy() if context else {}
         fragment = Fragment()
+        context['display_name'] = self.display_name
         context['keyboard_layouts'] = self.sorted_keyboard_layouts
         context['preferred_keyboard_layout'] = self.preferred_keyboard_layout
         fragment.add_content(loader.render_template("templates/skytap.html", context))

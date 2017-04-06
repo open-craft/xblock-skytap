@@ -120,6 +120,9 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         context["keyboard_layouts"] = self.sorted_keyboard_layouts
         context["preferred_keyboard_layout"] = self.preferred_keyboard_layout
         fragment.add_content(loader.render_template("templates/skytap.html", context))
+        fragment.add_css_url(
+            self.runtime.local_resource_url(self, "public/css/skytap.css")
+        )
         fragment.add_javascript_url(
             self.runtime.local_resource_url(self, "public/js/src/skytap.js")
         )

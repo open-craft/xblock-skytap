@@ -1,0 +1,7 @@
+.skytap-block h3, .skytap-block label {
+    margin-bottom: 1em;
+}
+
+.skytap-block label {
+    display: block;
+}

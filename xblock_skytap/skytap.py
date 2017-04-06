@@ -27,6 +27,24 @@ from .utils import _
 
 loader = ResourceLoader(__name__)
 
+DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
+    "de": "German",
+    "de-ch": "German-Switzerland",
+    "es": "Spanish",
+    "fi": "Finnish",
+    "fr": "French",
+    "fr-be": "French-Belgium",
+    "fr-ch": "French-Switzerland",
+    "is": "Icelandic",
+    "it": "Italian",
+    "jp": "Japanese",
+    "nl-be": "Dutch-Belgium",
+    "no": "Norwegian",
+    "pt": "Polish",
+    "uk": "English (UK)",
+    "us": "English (US)",
+}
+
 
 # Classes ###########################################################
 
@@ -79,12 +97,10 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             }
         }
         """
-        default = {}
-        xblock_settings = self.get_xblock_settings(default=default)
+        xblock_settings = self.get_xblock_settings(default=DEFAULT_KEYBOARD_LAYOUTS)
         if xblock_settings:
-            return xblock_settings.get("keyboard_layouts", default)
-        # Don't make assumptions about available keyboard layouts
-        return default
+            return xblock_settings.get("keyboard_layouts", DEFAULT_KEYBOARD_LAYOUTS)
+        return DEFAULT_KEYBOARD_LAYOUTS
 
     @property
     def sorted_keyboard_layouts(self):

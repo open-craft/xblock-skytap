@@ -6,10 +6,15 @@ This script is required to run our selenium tests inside the xblock-sdk workbenc
 because the workbench SDK's settings file is not inside any python module.
 """
 
+# Imports ###########################################################
+
 import logging
 import os
 import sys
 import workbench
+
+
+# Main ##############################################################
 
 if __name__ == "__main__":
     # Find the location of the XBlock SDK. Note: it must be installed in development mode.

@@ -2,14 +2,20 @@
 Integration tests for the Skytap XBlock.
 """
 
+# Imports ###########################################################
+
 from selenium.webdriver.support.select import Select
 
 from xblockutils.resources import ResourceLoader
 from xblockutils.studio_editable_test import StudioEditableBaseTest
 
 
+# Globals ###########################################################
+
 loader = ResourceLoader(__name__)
 
+
+# Classes ###########################################################
 
 class TestSkytap(StudioEditableBaseTest):
     """

@@ -2,6 +2,8 @@
 Unit tests for the Skytap XBlock.
 """
 
+# Imports ###########################################################
+
 import unittest
 
 from mock import Mock
@@ -11,10 +13,14 @@ from xblock.field_data import DictFieldData
 from xblock_skytap.skytap import DEFAULT_KEYBOARD_LAYOUTS, SkytapXBlock
 
 
+# Globals ###########################################################
+
 XBLOCK_SETTINGS = {
     "keyboard_layouts": DEFAULT_KEYBOARD_LAYOUTS,
 }
 
+
+# Classes ###########################################################
 
 class TestSkytap(unittest.TestCase):
     """

@@ -1,0 +1,8 @@
+[REPORTS]
+reports=no
+
+[FORMAT]
+max-line-length=120
+
+[OPTIONS]
+good-names=_,loader

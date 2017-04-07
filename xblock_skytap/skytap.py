@@ -49,6 +49,7 @@ DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
 # Classes ###########################################################
 
 @XBlock.wants("settings")
+@XBlock.wants("user")
 class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     """
     An XBlock that allows learners to access a Skytap (https://www.skytap.com/) environment for a given course.
@@ -129,10 +130,22 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         fragment.initialize_js("SkytapXBlock")
         return fragment
 
+    def get_current_user(self):
+        """
+        Get current user from user service, and return it.
+        """
+        user_service = self.runtime.service(self, 'user')
+        if user_service:
+            return user_service.get_current_user()
+        return None
+
     @XBlock.json_handler
     def launch(self, keyboard_layout, suffix=""):
         """
         Launch Skytap environment.
         """
         self.preferred_keyboard_layout = keyboard_layout
+        current_user = self.get_current_user()
+        if current_user is not None:
+            current_user_email = current_user.emails.pop()
         return {}

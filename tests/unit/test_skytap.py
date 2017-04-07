@@ -16,7 +16,13 @@ from xblock_skytap.skytap import DEFAULT_KEYBOARD_LAYOUTS, SkytapXBlock
 # Globals ###########################################################
 
 XBLOCK_SETTINGS = {
-    "keyboard_layouts": DEFAULT_KEYBOARD_LAYOUTS,
+    "keyboard_layouts": {
+        "de": "German",
+        "de-ch": "German-Switzerland",
+        "es": "Spanish",
+        "fi": "Finnish",
+        "fr": "French",
+    },
 }
 
 
@@ -69,7 +75,7 @@ class TestSkytap(unittest.TestCase):
         Test that `get_keyboard_layouts` returns keyboard layouts as defined in XBLOCK_SETTINGS.
         """
         self.block.get_xblock_settings = Mock(return_value=XBLOCK_SETTINGS)
-        self.assertEqual(self.block.get_keyboard_layouts(), DEFAULT_KEYBOARD_LAYOUTS)
+        self.assertEqual(self.block.get_keyboard_layouts(), XBLOCK_SETTINGS["keyboard_layouts"])
         self.block.get_xblock_settings.assert_called_once_with(default=DEFAULT_KEYBOARD_LAYOUTS)
 
     def test_sorted_keyboard_layouts(self):
@@ -77,22 +83,11 @@ class TestSkytap(unittest.TestCase):
         Test that `sorted_keyboard_layouts` sorts keyboard layouts by language name.
         """
         expected_keyboard_layouts = [
-            ("nl-be", "Dutch-Belgium"),
-            ("uk", "English (UK)"),
-            ("us", "English (US)"),
             ("fi", "Finnish"),
             ("fr", "French"),
-            ("fr-be", "French-Belgium"),
-            ("fr-ch", "French-Switzerland"),
             ("de", "German"),
             ("de-ch", "German-Switzerland"),
-            ("is", "Icelandic"),
-            ("it", "Italian"),
-            ("jp", "Japanese"),
-            ("no", "Norwegian"),
-            ("pt", "Polish"),
-            ("es", "Spanish")
-
+            ("es", "Spanish"),
         ]
         self.block.get_xblock_settings = Mock(return_value=XBLOCK_SETTINGS)
         self.assertEqual(self.block.sorted_keyboard_layouts, expected_keyboard_layouts)

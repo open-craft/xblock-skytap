@@ -54,7 +54,7 @@ class TestSkytap(unittest.TestCase):
         """
         self.block.get_xblock_settings = Mock(return_value=None)
         self.assertEqual(self.block.get_keyboard_layouts(), DEFAULT_KEYBOARD_LAYOUTS)
-        self.block.get_xblock_settings.assert_called_once_with(default=DEFAULT_KEYBOARD_LAYOUTS)
+        self.block.get_xblock_settings.assert_called_once_with(default={})
 
     def test_get_keyboard_layouts_no_layouts(self):
         """
@@ -68,7 +68,7 @@ class TestSkytap(unittest.TestCase):
         }
         self.block.get_xblock_settings = Mock(return_value=xblock_settings)
         self.assertEqual(self.block.get_keyboard_layouts(), DEFAULT_KEYBOARD_LAYOUTS)
-        self.block.get_xblock_settings.assert_called_once_with(default=DEFAULT_KEYBOARD_LAYOUTS)
+        self.block.get_xblock_settings.assert_called_once_with(default={})
 
     def test_get_keyboard_layouts(self):
         """
@@ -76,7 +76,7 @@ class TestSkytap(unittest.TestCase):
         """
         self.block.get_xblock_settings = Mock(return_value=XBLOCK_SETTINGS)
         self.assertEqual(self.block.get_keyboard_layouts(), XBLOCK_SETTINGS["keyboard_layouts"])
-        self.block.get_xblock_settings.assert_called_once_with(default=DEFAULT_KEYBOARD_LAYOUTS)
+        self.block.get_xblock_settings.assert_called_once_with(default={})
 
     def test_sorted_keyboard_layouts(self):
         """

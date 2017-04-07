@@ -98,7 +98,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             }
         }
         """
-        xblock_settings = self.get_xblock_settings(default=DEFAULT_KEYBOARD_LAYOUTS)
+        xblock_settings = self.get_xblock_settings(default={})
         if xblock_settings:
             return xblock_settings.get("keyboard_layouts", DEFAULT_KEYBOARD_LAYOUTS)
         return DEFAULT_KEYBOARD_LAYOUTS

@@ -20,6 +20,7 @@ from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
+from .exceptions import BoomiConfigurationInvalidError, BoomiConfigurationMissingError
 from .utils import _
 
 
@@ -148,6 +149,30 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         except AttributeError:  # We are not in an edx-platform runtime
             return None
 
+    def get_boomi_configuration(self):
+        """
+        Get Boomi configuration from settings service, and return it.
+
+        Raise an exception if configuration is missing one or more relevant entries.
+        """
+        xblock_settings = self.get_xblock_settings(default={})
+        if not xblock_settings or "boomi_configuration" not in xblock_settings:
+            raise BoomiConfigurationMissingError(
+                "XBLOCK_SETTINGS for Skytap XBlock are missing Boomi configuration."
+            )
+        boomi_configuration = xblock_settings["boomi_configuration"]
+        relevant_settings = ("base_url", "endpoint", "username", "token")
+        missing_settings = [
+            setting for setting in relevant_settings if setting not in boomi_configuration
+        ]
+        if missing_settings:
+            raise BoomiConfigurationInvalidError(
+                "Boomi configuration is missing the following settings: {missing_settings}".format(
+                    missing_settings=", ".join(missing_settings)
+                )
+            )
+        return boomi_configuration
+
     @XBlock.json_handler
     def launch(self, keyboard_layout, suffix=""):
         """
@@ -161,4 +186,5 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         if current_course is not None:
             current_course_name = current_course.course
             current_course_run = current_course.run
+        boomi_configuration = self.get_boomi_configuration()
         return {}

@@ -139,6 +139,15 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             return user_service.get_current_user()
         return None
 
+    def get_current_course(self):
+        """
+        Get the current course, and return it.
+        """
+        try:
+            return self.scope_ids.usage_id.course_key
+        except AttributeError:  # We are not in an edx-platform runtime
+            return None
+
     @XBlock.json_handler
     def launch(self, keyboard_layout, suffix=""):
         """
@@ -148,4 +157,8 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         current_user = self.get_current_user()
         if current_user is not None:
             current_user_email = current_user.emails.pop()
+        current_course = self.get_current_course()
+        if current_course is not None:
+            current_course_name = current_course.course
+            current_course_run = current_course.run
         return {}

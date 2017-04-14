@@ -12,8 +12,14 @@ for opening the sharing portal link in a new browser tab.
 # Imports ###########################################################
 
 from __future__ import absolute_import
+import base64
+import logging
+from urlparse import urljoin
 
+import requests
+from simplejson import JSONDecodeError
 from xblock.core import XBlock
+from xblock.exceptions import JsonHandlerError
 from xblock.fields import Scope, String
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
@@ -26,6 +32,7 @@ from .utils import _
 
 # Globals ###########################################################
 
+log = logging.getLogger(__name__)
 loader = ResourceLoader(__name__)
 
 DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
@@ -173,18 +180,75 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             )
         return boomi_configuration
 
+    def get_boomi_url(self):
+        """
+        Using the "boomi_configuration" in the XBLOCK_SETTINGS, construct the authenticated Boomi endpoint URL.
+        """
+        boomi_configuration = self.get_boomi_configuration()
+
+        auth_string = "{}:{}".format(boomi_configuration['username'], boomi_configuration['token']).encode('ascii')
+        base64_auth_string = base64.b64encode(auth_string)
+
+        return "{base_url};boomi_auth={base64_auth_string}".format(
+            base_url=urljoin(boomi_configuration['base_url'], boomi_configuration['endpoint']),
+            base64_auth_string=base64_auth_string.decode('ascii')
+        )
+
+    @staticmethod
+    def raise_error(message='An unknown error occurred.', exception=False):
+        """
+        Given an error message, log the error and raise a JsonHandlerError to invoke an error response.
+        """
+        if exception:
+            log.exception(message)
+        else:
+            log.error(message)
+
+        raise JsonHandlerError(500, message)
+
     @XBlock.json_handler
     def launch(self, keyboard_layout, suffix=""):
         """
-        Launch Skytap environment.
+        Launch Skytap environment and return the resulting sharing portal URL.
         """
         self.preferred_keyboard_layout = keyboard_layout
+
+        # Gather information from the runtime and settings
         current_user = self.get_current_user()
-        if current_user is not None:
-            current_user_email = current_user.emails.pop()
         current_course = self.get_current_course()
-        if current_course is not None:
-            current_course_name = current_course.course
-            current_course_run = current_course.run
-        boomi_configuration = self.get_boomi_configuration()
-        return {}
+        if current_user is None:
+            self.raise_error('Unable to fetch the current user from the runtime.')
+        if current_course is None:
+            self.raise_error('This block usage is not associated with a course.')
+        current_user_email = current_user.emails.pop()
+        current_course_name = current_course.course
+        current_course_run = current_course.run
+        try:
+            boomi_url = self.get_boomi_url()
+        except (BoomiConfigurationInvalidError, BoomiConfigurationMissingError) as e:
+            self.raise_error('The Skytap XBlock is improperly configured.', exception=True)
+
+        # Fetch the sharing portal URL from Boomi
+        response = requests.post(
+            boomi_url,
+            json={
+                'email': current_user_email,
+                'keyboard_layout': keyboard_layout,
+                'course_name': current_course_name,
+                'course_run': current_course_run,
+            },
+            headers={'Accept': 'application/json'},
+        )
+
+        # Handle response errors
+        try:
+            response_json = response.json()
+        except JSONDecodeError:
+            self.raise_error('The Skytap launch service returned a malformed response.', exception=True)
+
+        if response_json['ErrorExists']:
+            self.raise_error(response_json['ErrorMessage'])
+
+        return {
+            'sharing_portal_url': response_json['SkytapURL']
+        }

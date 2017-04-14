@@ -5,3 +5,7 @@
 .skytap-block label {
     display: block;
 }
+
+.skytap-block .skytap-error {
+    color: darkred;
+}

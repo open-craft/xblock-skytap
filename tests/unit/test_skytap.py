@@ -9,6 +9,7 @@ import json
 import ddt
 import httpretty
 from mock import Mock
+
 from xblock.field_data import DictFieldData
 
 from xblock_skytap.exceptions import BoomiConfigurationInvalidError, BoomiConfigurationMissingError
@@ -46,6 +47,7 @@ class TestSkytap(CreateVmMockMixin):
 
         self.service_mock = Mock()
         self.service_mock.get_current_user = Mock(return_value=self.current_user_mock)
+        self.service_mock.ugettext = lambda text: text
 
         self.runtime_mock = Mock()
         self.runtime_mock.service = Mock(return_value=self.service_mock)

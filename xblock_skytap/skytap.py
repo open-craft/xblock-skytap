@@ -27,7 +27,7 @@ from xblockutils.settings import XBlockWithSettingsMixin
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
 from .exceptions import BoomiConfigurationInvalidError, BoomiConfigurationMissingError
-from .utils import _
+from .utils import _  # pylint: disable=unused-import
 
 
 # Globals ###########################################################
@@ -82,6 +82,10 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     editable_fields = ("display_name",)
 
     block_settings_key = "skytap"
+
+    def _(self, text):
+        """ Translate text. """
+        return self.runtime.service(self, "i18n").ugettext(text)
 
     def get_keyboard_layouts(self):
         """
@@ -217,16 +221,16 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         current_user = self.get_current_user()
         current_course = self.get_current_course()
         if current_user is None:
-            self.raise_error('Unable to fetch the current user from the runtime.')
+            self.raise_error(self._('Unable to fetch the current user from the runtime.'))
         if current_course is None:
-            self.raise_error('This block usage is not associated with a course.')
+            self.raise_error(self._('This block usage is not associated with a course.'))
         current_user_email = current_user.emails.pop()
         current_course_name = current_course.course
         current_course_run = current_course.run
         try:
             boomi_url = self.get_boomi_url()
-        except (BoomiConfigurationInvalidError, BoomiConfigurationMissingError) as e:
-            self.raise_error('The Skytap XBlock is improperly configured.', exception=True)
+        except (BoomiConfigurationInvalidError, BoomiConfigurationMissingError):
+            self.raise_error(self._('The Skytap XBlock is improperly configured.'), exception=True)
 
         # Fetch the sharing portal URL from Boomi
         response = requests.post(
@@ -244,7 +248,11 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         try:
             response_json = response.json()
         except JSONDecodeError:
-            self.raise_error('The Skytap launch service returned a malformed response.', exception=True)
+            log.error(
+                self._('The Boomi endpoint returned the following non-JSON response content: %s'),
+                response.content
+            )
+            self.raise_error(self._('The Skytap launch service returned a malformed response.'), exception=True)
 
         if response_json['ErrorExists']:
             self.raise_error(response_json['ErrorMessage'])

@@ -17,18 +17,30 @@ function SkytapXBlock(runtime, element) {
             launchXHR.abort();
         }
 
+        launchButton[0].setAttribute('disabled', 'true');
+
         launchXHR = $.post(handlerUrl, JSON.stringify(keyboardLayout))
             .success(function(response) {
-                // FIXME: Open sharing portal link from response (OC-2505)
-                var sharingPortal = window.open('https://www.skytap.com/', '_blank');
+                var url = response.responseJSON.sharing_portal_url;
+                var sharingPortal = window.open(url, '_blank');
                 if (sharingPortal === null) {
                     alert("The browser's popup blocker prevented the exercise environment from being launched.");
                 } else {
                     sharingPortal.focus();
                 }
+
+                launchButton[0].removeAttribute('disabled');
             })
             .error(function(jqXHR, textStatus, errorThrown) {
-                // FIXME: Display appropriate error message (OC-2505)
+                var error;
+                if (jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')) {
+                    error = jqXHR.responseJSON.error;
+                } else {
+                    error = 'An unknown error occurred while launching.';
+                }
+                $('#skytap-error').text('Error: ' + error);
+
+                launchButton[0].removeAttribute('disabled');
             });
 
     });

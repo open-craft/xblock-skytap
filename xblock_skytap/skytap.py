@@ -12,19 +12,27 @@ for opening the sharing portal link in a new browser tab.
 # Imports ###########################################################
 
 from __future__ import absolute_import
+import base64
+import logging
+from urlparse import urljoin
 
+import requests
+from simplejson import JSONDecodeError
 from xblock.core import XBlock
+from xblock.exceptions import JsonHandlerError
 from xblock.fields import Scope, String
 from xblock.fragment import Fragment
 from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from .utils import _
+from .exceptions import BoomiConfigurationInvalidError, BoomiConfigurationMissingError
+from .utils import _  # pylint: disable=unused-import
 
 
 # Globals ###########################################################
 
+log = logging.getLogger(__name__)
 loader = ResourceLoader(__name__)
 
 DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
@@ -49,6 +57,7 @@ DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
 # Classes ###########################################################
 
 @XBlock.wants("settings")
+@XBlock.wants("user")
 class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     """
     An XBlock that allows learners to access a Skytap (https://www.skytap.com/) environment for a given course.
@@ -74,6 +83,10 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
 
     block_settings_key = "skytap"
 
+    def _(self, text):
+        """ Translate text. """
+        return self.runtime.service(self, "i18n").ugettext(text)
+
     def get_keyboard_layouts(self):
         """
         Get available keyboard layouts from settings service, and return them.
@@ -97,7 +110,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             }
         }
         """
-        xblock_settings = self.get_xblock_settings(default=DEFAULT_KEYBOARD_LAYOUTS)
+        xblock_settings = self.get_xblock_settings(default={})
         if xblock_settings:
             return xblock_settings.get("keyboard_layouts", DEFAULT_KEYBOARD_LAYOUTS)
         return DEFAULT_KEYBOARD_LAYOUTS
@@ -129,10 +142,121 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         fragment.initialize_js("SkytapXBlock")
         return fragment
 
+    def get_current_user(self):
+        """
+        Get current user from user service, and return it.
+        """
+        user_service = self.runtime.service(self, 'user')
+        if user_service:
+            return user_service.get_current_user()
+        return None
+
+    def get_current_course(self):
+        """
+        Get the current course, and return it.
+        """
+        try:
+            return self.scope_ids.usage_id.course_key
+        except AttributeError:  # We are not in an edx-platform runtime
+            return None
+
+    def get_boomi_configuration(self):
+        """
+        Get Boomi configuration from settings service, and return it.
+
+        Raise an exception if configuration is missing one or more relevant entries.
+        """
+        xblock_settings = self.get_xblock_settings(default={})
+        if not xblock_settings or "boomi_configuration" not in xblock_settings:
+            raise BoomiConfigurationMissingError(
+                "XBLOCK_SETTINGS for Skytap XBlock are missing Boomi configuration."
+            )
+        boomi_configuration = xblock_settings["boomi_configuration"]
+        relevant_settings = ("base_url", "endpoint", "username", "token")
+        missing_settings = [
+            setting for setting in relevant_settings if setting not in boomi_configuration
+        ]
+        if missing_settings:
+            raise BoomiConfigurationInvalidError(
+                "Boomi configuration is missing the following settings: {missing_settings}".format(
+                    missing_settings=", ".join(missing_settings)
+                )
+            )
+        return boomi_configuration
+
+    def get_boomi_url(self):
+        """
+        Using the "boomi_configuration" in the XBLOCK_SETTINGS, construct the authenticated Boomi endpoint URL.
+        """
+        boomi_configuration = self.get_boomi_configuration()
+
+        auth_string = "{}:{}".format(boomi_configuration['username'], boomi_configuration['token']).encode('ascii')
+        base64_auth_string = base64.b64encode(auth_string)
+
+        return "{base_url};boomi_auth={base64_auth_string}".format(
+            base_url=urljoin(boomi_configuration['base_url'], boomi_configuration['endpoint']),
+            base64_auth_string=base64_auth_string.decode('ascii')
+        )
+
+    @staticmethod
+    def raise_error(message='An unknown error occurred.', exception=False):
+        """
+        Given an error message, log the error and raise a JsonHandlerError to invoke an error response.
+        """
+        if exception:
+            log.exception(message)
+        else:
+            log.error(message)
+
+        raise JsonHandlerError(500, message)
+
     @XBlock.json_handler
     def launch(self, keyboard_layout, suffix=""):
         """
-        Launch Skytap environment.
+        Launch Skytap environment and return the resulting sharing portal URL.
         """
         self.preferred_keyboard_layout = keyboard_layout
-        return {}
+
+        # Gather information from the runtime and settings
+        current_user = self.get_current_user()
+        current_course = self.get_current_course()
+        if current_user is None:
+            self.raise_error(self._('Unable to fetch the current user from the runtime.'))
+        if current_course is None:
+            self.raise_error(self._('This block usage is not associated with a course.'))
+        current_user_email = current_user.emails.pop()
+        current_course_name = current_course.course
+        current_course_run = current_course.run
+        try:
+            boomi_url = self.get_boomi_url()
+        except (BoomiConfigurationInvalidError, BoomiConfigurationMissingError):
+            self.raise_error(self._('The Skytap XBlock is improperly configured.'), exception=True)
+
+        # Fetch the sharing portal URL from Boomi
+        response = requests.post(
+            boomi_url,
+            json={
+                'email': current_user_email,
+                'keyboard_layout': keyboard_layout,
+                'course_name': current_course_name,
+                'course_run': current_course_run,
+            },
+            headers={'Accept': 'application/json'},
+        )
+
+        # Handle response errors
+        try:
+            response_json = response.json()
+        except JSONDecodeError:
+            log.error(
+                self._('The Boomi endpoint returned the following non-JSON response content: %s'),
+                response.content
+            )
+            self.raise_error(self._('The Skytap launch service returned a malformed response.'), exception=True)
+
+        if response_json['ErrorExists']:
+            self.raise_error(response_json['ErrorMessage'])
+
+        return {
+            'sharing_portal_url': response_json['SkytapURL']
+        }

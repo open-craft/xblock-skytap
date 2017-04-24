@@ -58,11 +58,10 @@ class TestSkytap(CreateVmMockMixin):
 
         self.block = SkytapXBlock(self.runtime_mock, DictFieldData({}), self.scope_ids_mock)
 
-    def assert_launch_response(self, expected, code=500, settings=XBLOCK_SETTINGS):
+    def assert_launch_response(self, expected, code=500):
         """
         Helper method for calling the launch method and asserting an expected response dict.
         """
-        self.block.get_xblock_settings = Mock(return_value=settings)
         response = self.block.launch(request=Mock(method='POST', body=json.dumps('de')))
 
         self.assertEqual(response.status_code, code)
@@ -184,7 +183,7 @@ class TestSkytap(CreateVmMockMixin):
         Test that a malformed response from Boomi will result in a generic error message being returned to the client.
         """
         self.block.get_xblock_settings = Mock(return_value={})
-        self.assert_launch_response({u'error': u'The Skytap XBlock is improperly configured.'}, code=500, settings={})
+        self.assert_launch_response({u'error': u'The Skytap XBlock is improperly configured.'}, code=500)
 
     def test_launch_no_runtime_user(self):
         """

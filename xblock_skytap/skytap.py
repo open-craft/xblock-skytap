@@ -254,7 +254,11 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             )
             self.raise_error(self._('The Skytap launch service returned a malformed response.'), exception=True)
 
-        if response_json['ErrorExists']:
+        # Check if Boomi encountered an error while processing the request,
+        # and pass it back to the client.
+        # Note that Boomi does not support Boolean values in JSON responses,
+        # so the check needs to compare string values.
+        if response_json['ErrorExists'].lower() == 'true':
             self.raise_error(response_json['ErrorMessage'])
 
         return {

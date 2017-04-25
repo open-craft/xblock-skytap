@@ -36,7 +36,7 @@ class CreateVmMockMixin(unittest.TestCase):
         Mock a successful response from the createVm endpoint.
         """
         response = {
-            "ErrorExists": False,
+            "ErrorExists": 'false',  # Boomi does not support Boolean values in JSON responses.
             "ErrorMessage": None,
             "SkytapURL": sharing_portal_url,
         }
@@ -53,7 +53,7 @@ class CreateVmMockMixin(unittest.TestCase):
         Mock an error response from the createVm endpoint.
         """
         response = {
-            "ErrorExists": True,
+            "ErrorExists": 'true',  # Boomi does not support Boolean values in JSON responses.
             "ErrorMessage": error,
             "SkytapURL": None,
         }

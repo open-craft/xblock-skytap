@@ -180,7 +180,7 @@ class TestSkytap(CreateVmMockMixin):
 
     def test_launch_improperly_configured(self):
         """
-        Test that a malformed response from Boomi will result in a generic error message being returned to the client.
+        Test that launch method gracefully fails if Boomi configuration is missing or invalid.
         """
         self.block.get_xblock_settings = Mock(return_value={})
         self.assert_launch_response({u'error': u'The Skytap XBlock is improperly configured.'}, code=500)

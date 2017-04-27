@@ -58,6 +58,7 @@ DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
 
 @XBlock.wants("settings")
 @XBlock.wants("user")
+@XBlock.needs("i18n")
 class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     """
     An XBlock that allows learners to access a Skytap (https://www.skytap.com/) environment for a given course.

@@ -21,7 +21,7 @@ function SkytapXBlock(runtime, element) {
 
         launchXHR = $.post(handlerUrl, JSON.stringify(keyboardLayout))
             .success(function(response) {
-                var url = response.responseJSON.sharing_portal_url;
+                var url = response.sharing_portal_url;
                 var sharingPortal = window.open(url, '_blank');
                 if (sharingPortal === null) {
                     alert("The browser's popup blocker prevented the exercise environment from being launched.");

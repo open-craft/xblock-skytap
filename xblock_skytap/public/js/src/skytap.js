@@ -21,19 +21,39 @@ function SkytapXBlock(runtime, element) {
     launchButton.on('click', function(e) {
         e.preventDefault();
 
+        console.log("Trying to launch exercise environment ...");
+
         var handlerUrl = runtime.handlerUrl(element, 'launch'),
             keyboardLayout = launchForm.find('select').val();
 
+        console.log("handlerUrl: " + handlerUrl);
+        console.log("keyboardLayout: " + keyboardLayout);
+
         if (launchXHR) {
+
+            console.log("Aborting another launch that is currently in progress ...");
+
             launchXHR.abort();
         }
 
+        console.log("Showing spinner ...");
         launchSpinner.show();
+
+        console.log("Disabling 'Open' button ...");
         launchButton.prop('disabled', true);
+
+        console.log("Sending launch request to server ...");
 
         launchXHR = $.post(handlerUrl, JSON.stringify(keyboardLayout))
             .success(function(response) {
+
+                console.log("Launch successful.");
+                console.log("Response:");
+                console.log(response);
+
+                console.log("Obtaining sharing portal URL ...");
                 var url = response.sharing_portal_url;
+                console.log("url: " + url);
 
                 /*
                  The standard behaviour is to open the exercise environment in a new tab using a popup,
@@ -47,31 +67,49 @@ function SkytapXBlock(runtime, element) {
                 var isWindows = navigator.userAgent.match(/(Windows Phone|iemobile)/i);
                 if (isiOS || isAndroid || isWindows) {
                     // Simply redirect for mobile devices.
+                    console.log("Redirecting mobile device to sharing portal URL ...");
                     window.location = url;
                 } else {
+                    console.log("Opening sharing portal URL in new tab ...");
                     // Desktop browsers offer an easy way to allow the popup so being blocked is ok.
                     var sharingPortal = window.open(url, '_blank');
                     if (sharingPortal === undefined || sharingPortal === null) {
                         // Need to test for both null (from desktop browsers blocking the popup)
                         // and also undefined (from mobile Safari refusing to show the popup).
+                        console.log("Could not open new tab.");
                         alert(gettext("The browser's popup blocker prevented the exercise environment from being launched."));
                     } else {
+                        console.log("Focusing new tab ...");
                         sharingPortal.focus();
                     }
                 }
             })
             .error(function(jqXHR, textStatus, errorThrown) {
+
+                console.log("Launch unsuccessful.");
+                console.log("jqXHR:");
+                console.log(jqXHR);
+                console.log("textStatus: " + textStatus);
+                console.log("errorThrown: " + errorThrown);
+
                 var error;
                 if (jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')) {
+                    console.log("Got a specific error message.");
                     error = jqXHR.responseJSON.error;
                 } else {
+                    console.log("Did not get a specific error message.");
                     error = gettext('An unknown error occurred while launching.');
                 }
+
+                console.log("Updating GUI with error message ...");
                 $('#skytap-error-message').text('Error: ' + error);
             })
             .complete(function() {
+                console.log("Hiding spinner ...");
                 launchSpinner.hide();
+                console.log("Enabling 'Open' button ...");
                 launchButton.prop('disabled', false);
+                console.log("DONE.");
             });
 
     });

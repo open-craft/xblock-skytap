@@ -189,6 +189,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         """
         Using the "boomi_configuration" in the XBLOCK_SETTINGS, construct the authenticated Boomi endpoint URL.
         """
+        log.error("Obtaining Boomi configuration ...")
         boomi_configuration = self.get_boomi_configuration()
 
         auth_string = "{}:{}".format(boomi_configuration['username'], boomi_configuration['token']).encode('ascii')
@@ -219,20 +220,39 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         self.preferred_keyboard_layout = keyboard_layout
 
         # Gather information from the runtime and settings
+
+        log.error("Fetching information about current user ...")
         current_user = self.get_current_user()
+        log.error("current_user: {}".format(current_user))
+
+        log.error("Fetching information about current course ...")
         current_course = self.get_current_course()
+        log.error("current_course: {}".format(current_course))
+
         if current_user is None:
             self.raise_error(self._('Unable to fetch the current user from the runtime.'))
         if current_course is None:
             self.raise_error(self._('This block usage is not associated with a course.'))
+
+        log.error("Obtaining e-mail address of current user ...")
         current_user_email = current_user.emails.pop()
+        log.error("current_user_email: {}".format(current_user_email))
+
+        log.error("Obtaining name of current course ...")
         current_course_name = current_course.course
+        log.error("current_course_name: {}".format(current_course_name))
+
+        log.error("Obtaining course run ...")
         current_course_run = current_course.run
+        log.error("current_course_run: {}".format(current_course_run))
+
         try:
+            log.error("Obtaining Boomi URL ...")
             boomi_url = self.get_boomi_url()
         except (BoomiConfigurationInvalidError, BoomiConfigurationMissingError):
             self.raise_error(self._('The Skytap XBlock is improperly configured.'), exception=True)
 
+        log.error("Sending request to Boomi ...")
         # Fetch the sharing portal URL from Boomi
         response = requests.post(
             boomi_url,
@@ -245,6 +265,8 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             headers={'Accept': 'application/json'},
         )
 
+        log.error("response.status_code: {}".format(response.status_code))
+
         # Handle response errors
         try:
             response_json = response.json()
@@ -254,14 +276,20 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
                 response.content
             )
             self.raise_error(self._('The Skytap launch service returned a malformed response.'), exception=True)
+        else:
+            log.error("Got valid JSON from Boomi.")
+            log.error("response_json: {}".format(response_json))
 
         # Check if Boomi encountered an error while processing the request,
         # and pass it back to the client.
         # Note that Boomi does not support Boolean values in JSON responses,
         # so the check needs to compare string values.
         if response_json['ErrorExists'].lower() == 'true':
+            log.error("Boomi reported an error. Returning message to client ...")
             self.raise_error(response_json['ErrorMessage'])
 
+        log.error("Boomi did not report any errors. Returning sharing portal URL to client ...")
+        log.error("response_json['SkytapURL']: {}".format(response_json['SkytapURL']))
         return {
             'sharing_portal_url': response_json['SkytapURL']
         }

@@ -3,6 +3,12 @@
 function SkytapXBlock(runtime, element) {
     "use strict";
 
+    // Set up gettext in case it isn't available in the client runtime:
+    if (typeof gettext == 'undefined') {
+        window.gettext = function gettext_stub(string) { return string; };
+        window.ngettext = function ngettext_stub(strA, strB, n) { return n == 1 ? strA : strB; };
+    }
+
     var launchForm = $('.skytap-launch-form', element),
         launchButton = launchForm.find('.skytap-launch'),
         launchSpinner = launchForm.find('.skytap-spinner'),
@@ -30,7 +36,9 @@ function SkytapXBlock(runtime, element) {
                 var url = response.sharing_portal_url;
                 var sharingPortal = window.open(url, '_blank');
                 if (sharingPortal === null) {
-                    alert("The browser's popup blocker prevented the exercise environment from being launched.");
+                    alert(
+                        gettext("The browser's popup blocker prevented the exercise environment from being launched.")
+                    );
                 } else {
                     sharingPortal.focus();
                 }
@@ -40,7 +48,7 @@ function SkytapXBlock(runtime, element) {
                 if (jqXHR.hasOwnProperty('responseJSON') && jqXHR.responseJSON.hasOwnProperty('error')) {
                     error = jqXHR.responseJSON.error;
                 } else {
-                    error = 'An unknown error occurred while launching.';
+                    error = gettext('An unknown error occurred while launching.');
                 }
                 $('#skytap-error-message').text('Error: ' + error);
             })

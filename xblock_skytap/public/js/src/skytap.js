@@ -5,8 +5,13 @@ function SkytapXBlock(runtime, element) {
 
     var launchForm = $('.skytap-launch-form', element),
         launchButton = launchForm.find('.skytap-launch'),
+        launchSpinner = launchForm.find('.skytap-spinner'),
         launchXHR;
 
+    // Prepare UI
+    launchSpinner.hide();
+
+    // Set up click handler for button that allows learners to launch exercise environment
     launchButton.on('click', function(e) {
         e.preventDefault();
 
@@ -17,7 +22,8 @@ function SkytapXBlock(runtime, element) {
             launchXHR.abort();
         }
 
-        launchButton[0].setAttribute('disabled', 'true');
+        launchSpinner.show();
+        launchButton.prop('disabled', true);
 
         launchXHR = $.post(handlerUrl, JSON.stringify(keyboardLayout))
             .success(function(response) {
@@ -28,8 +34,6 @@ function SkytapXBlock(runtime, element) {
                 } else {
                     sharingPortal.focus();
                 }
-
-                launchButton[0].removeAttribute('disabled');
             })
             .error(function(jqXHR, textStatus, errorThrown) {
                 var error;
@@ -39,8 +43,10 @@ function SkytapXBlock(runtime, element) {
                     error = 'An unknown error occurred while launching.';
                 }
                 $('#skytap-error-message').text('Error: ' + error);
-
-                launchButton[0].removeAttribute('disabled');
+            })
+            .complete(function() {
+                launchSpinner.hide();
+                launchButton.prop('disabled', false);
             });
 
     });

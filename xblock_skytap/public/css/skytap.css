@@ -20,6 +20,10 @@
     border: 1px solid #d2c9c9;
 }
 
+.skytap-block .skytap-action i.skytap-spinner {
+    margin-left: 0.8em;
+}
+
 .skytap-block .skytap-error {
     color: darkred;
 }

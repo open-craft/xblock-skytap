@@ -47,7 +47,7 @@ class TestSkytap(StudioEditableBaseTest):
 
     def find_launch_button(self):
         """
-        Locate "Launch" button and return it.
+        Locate button for launching exercise environment and return it.
         """
         return self.element.find_element_by_css_selector(".skytap-launch")
 
@@ -82,7 +82,7 @@ class TestSkytap(StudioEditableBaseTest):
         - When accessing Skytap XBlock instance for the first time,
           menu should default to "English (US)".
         - On subsequent visits, menu should default to keyboard layout that
-          was selected when learner last clicked "Launch" button.
+          was selected when learner last clicked button for launching exercise environment.
         """
         self.load_scenario("xml/skytap_defaults.xml")
 

@@ -38,7 +38,7 @@ function SkytapXBlock(runtime, element) {
                 } else {
                     error = 'An unknown error occurred while launching.';
                 }
-                $('#skytap-error').text('Error: ' + error);
+                $('#skytap-error-message').text('Error: ' + error);
 
                 launchButton[0].removeAttribute('disabled');
             });

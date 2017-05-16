@@ -68,7 +68,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
 
     display_name = String(
         display_name=_("Title"),
-        help=_("The title of this block. Displayed above the controls for launching the exercise environment."),
+        help=_("The title of this block. Learners currently don't see this."),
         scope=Scope.settings,
         default=_("Skytap XBlock"),
     )

@@ -1,9 +1,10 @@
+{% load i18n %}
 <div class="skytap-block">
-  <h3>{{ display_name }}</h3>
+  <h3>{% trans "Open the Exercise Environment Portal" %}</h3>
   <form class="skytap-launch-form">
     <div>
       <label>
-        <span>Select your preferred keyboard layout:</span>
+        <span>{% trans "Select your preferred keyboard layout" %}:</span>
         <select name="keyboard_layout">
           {% for language_code, language_name in keyboard_layouts %}
             <option value="{{ language_code }}"
@@ -14,11 +15,21 @@
         </select>
       </label>
     </div>
-    <div>
-      <input class="skytap-launch" type="submit" name="submit" value="Launch">
+    <div class="skytap-action">
+      <button type="button" class="skytap-launch">
+        {% trans "Open" %}
+      </button>
     </div>
-    <div>
-      <span id="skytap-error" class="skytap-error" aria-live="assertive"></span>
+    <div class="skytap-error">
+      <span id="skytap-error-message" aria-live="assertive"></span>
+    </div>
+    <div class="additional-info">
+      <p>
+        {% trans "Don't forget to suspend or shut down your VMs when you are done using them!" %}
+      </p>
+      <p>
+        {% trans "If you are having issues accessing your exercise environment, please contact" %} <a href="mailto:ondemand-feedback@cloudera.com">ondemand-feedback@cloudera.com</a>.
+      </p>
     </div>
   </form>
 </div>

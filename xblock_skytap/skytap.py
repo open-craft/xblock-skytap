@@ -76,7 +76,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
     # User state
 
     preferred_keyboard_layout = String(
-        scope=Scope.user_state,
+        scope=Scope.preferences,
         default="us",
     )
 

@@ -41,17 +41,29 @@ class TestSkytap(StudioEditableBaseTest):
         """
         self.browser.execute_script("$(document).html(' ');")
 
-    def find_menu(self):
+    def find_menu(self, index):
         """
-        Locate menu for selecting keyboard layout and return it.
+        Locate menu for selecting keyboard layout that sits at `index` in the list of menus and return it.
         """
-        return Select(self.element.find_element_by_tag_name("select"))
+        return self.find_menus()[index]
 
-    def find_launch_button(self):
+    def find_menus(self):
         """
-        Locate button for launching exercise environment and return it.
+        Locate menus for selecting keyboard layout and return them.
         """
-        return self.element.find_element_by_css_selector(".skytap-launch")
+        return [Select(menu) for menu in self.element.find_elements_by_tag_name("select")]
+
+    def find_launch_button(self, index):
+        """
+        Locate button for launching exercise environment that sits at `index` in the list of buttons and return it.
+        """
+        return self.find_launch_buttons()[index]
+
+    def find_launch_buttons(self):
+        """
+        Locate buttons for launching exercise environment and return them.
+        """
+        return self.element.find_elements_by_css_selector(".skytap-launch")
 
     def find_spinner(self):
         """
@@ -90,22 +102,26 @@ class TestSkytap(StudioEditableBaseTest):
         - When accessing Skytap XBlock instance for the first time,
           menu should default to "English (US)".
         - On subsequent visits, menu should default to keyboard layout that
-          was selected when learner last clicked button for launching exercise environment.
+          was selected when learner last clicked button for launching exercise environment,
+          across different instances of the Skytap XBlock.
         """
-        self.load_scenario("xml/skytap_defaults.xml")
+        self.load_scenario("xml/skytap_multiple.xml")
 
-        menu = self.find_menu()
-        self.assert_selected_option(menu, "us", "English (US)")
+        menus = self.find_menus()
+        for menu in menus:
+            self.assert_selected_option(menu, "us", "English (US)")
 
+        menu = self.find_menu(0)
         menu.select_by_visible_text("Norwegian")
 
-        launch_button = self.find_launch_button()
+        launch_button = self.find_launch_button(0)
         launch_button.click()
 
-        self.refresh_page()
+        self.load_scenario("xml/skytap_multiple.xml")
 
-        menu = self.find_menu()
-        self.assert_selected_option(menu, "no", "Norwegian")
+        menus = self.find_menus()
+        for menu in menus:
+            self.assert_selected_option(menu, "no", "Norwegian")
 
     @patch('xblock_skytap.SkytapXBlock.get_boomi_url')
     @patch('xblock_skytap.SkytapXBlock.get_current_course')
@@ -118,7 +134,7 @@ class TestSkytap(StudioEditableBaseTest):
 
         self.load_scenario("xml/skytap_defaults.xml")
 
-        launch_button = self.find_launch_button()
+        launch_button = self.find_launch_button(0)
         spinner = self.find_spinner()
 
         def mock_post(*args, **kwargs):

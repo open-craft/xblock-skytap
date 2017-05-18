@@ -1,11 +1,38 @@
-.skytap-block h3, .skytap-block label {
-    margin-bottom: 1em;
+.skytap-block h3,
+.skytap-block label,
+.skytap-block .skytap-action,
+.skytap-block .skytap-error {
+    margin-bottom: 1.4em;
 }
 
 .skytap-block label {
     display: block;
 }
 
+.skytap-block .skytap-action button.skytap-launch:focus {
+    box-shadow: inset 0 0 8px 4px #cac2c2, inset 0 0 8px 4px #cac2c2;
+}
+
+.skytap-block .skytap-action button.skytap-launch:hover {
+    box-shadow: inset 0 1px 0 0 #fefefe;
+    background-color: #e4e4e4;
+    text-shadow: 0 1px 0 #fcfbfb;
+    border: 1px solid #d2c9c9;
+}
+
+.skytap-block .skytap-action i.skytap-spinner {
+    margin-left: 0.8em;
+}
+
 .skytap-block .skytap-error {
     color: darkred;
+}
+
+.skytap-block .additional-info p {
+    margin-bottom: 0.4em;
+    font-style: italic;
+}
+
+.skytap-block .additional-info p+p {
+    margin-top: 0.5em;
 }

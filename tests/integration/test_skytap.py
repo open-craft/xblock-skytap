@@ -4,7 +4,9 @@ Integration tests for the Skytap XBlock.
 
 # Imports ###########################################################
 
-from mock import patch
+import time
+
+from mock import Mock, patch
 
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
@@ -39,17 +41,35 @@ class TestSkytap(StudioEditableBaseTest):
         """
         self.browser.execute_script("$(document).html(' ');")
 
-    def find_menu(self):
+    def find_menu(self, index):
         """
-        Locate menu for selecting keyboard layout and return it.
+        Locate menu for selecting keyboard layout that sits at `index` in the list of menus and return it.
         """
-        return Select(self.element.find_element_by_tag_name("select"))
+        return self.find_menus()[index]
 
-    def find_launch_button(self):
+    def find_menus(self):
         """
-        Locate "Launch" button and return it.
+        Locate menus for selecting keyboard layout and return them.
         """
-        return self.element.find_element_by_css_selector(".skytap-launch")
+        return [Select(menu) for menu in self.element.find_elements_by_tag_name("select")]
+
+    def find_launch_button(self, index):
+        """
+        Locate button for launching exercise environment that sits at `index` in the list of buttons and return it.
+        """
+        return self.find_launch_buttons()[index]
+
+    def find_launch_buttons(self):
+        """
+        Locate buttons for launching exercise environment and return them.
+        """
+        return self.element.find_elements_by_css_selector(".skytap-launch")
+
+    def find_spinner(self):
+        """
+        Locate spinner that indicates that exercise environment is being launched and return it.
+        """
+        return self.element.find_element_by_css_selector(".skytap-spinner")
 
     def wait_until_number_of_tabs(self, expected_number_of_tabs):
         """
@@ -82,22 +102,26 @@ class TestSkytap(StudioEditableBaseTest):
         - When accessing Skytap XBlock instance for the first time,
           menu should default to "English (US)".
         - On subsequent visits, menu should default to keyboard layout that
-          was selected when learner last clicked "Launch" button.
+          was selected when learner last clicked button for launching exercise environment,
+          across different instances of the Skytap XBlock.
         """
-        self.load_scenario("xml/skytap_defaults.xml")
+        self.load_scenario("xml/skytap_multiple.xml")
 
-        menu = self.find_menu()
-        self.assert_selected_option(menu, "us", "English (US)")
+        menus = self.find_menus()
+        for menu in menus:
+            self.assert_selected_option(menu, "us", "English (US)")
 
+        menu = self.find_menu(0)
         menu.select_by_visible_text("Norwegian")
 
-        launch_button = self.find_launch_button()
+        launch_button = self.find_launch_button(0)
         launch_button.click()
 
-        self.refresh_page()
+        self.load_scenario("xml/skytap_multiple.xml")
 
-        menu = self.find_menu()
-        self.assert_selected_option(menu, "no", "Norwegian")
+        menus = self.find_menus()
+        for menu in menus:
+            self.assert_selected_option(menu, "no", "Norwegian")
 
     @patch('xblock_skytap.SkytapXBlock.get_boomi_url')
     @patch('xblock_skytap.SkytapXBlock.get_current_course')
@@ -110,19 +134,51 @@ class TestSkytap(StudioEditableBaseTest):
 
         self.load_scenario("xml/skytap_defaults.xml")
 
-        launch_button = self.find_launch_button()
+        launch_button = self.find_launch_button(0)
+        spinner = self.find_spinner()
 
-        with patch('xblock_skytap.skytap.requests.post') as patched_post:
-            patched_post.return_value.json.return_value = {
+        def mock_post(*args, **kwargs):
+            """
+            Function to use for patching `requests.post`.
+
+            Sleeps for a second before returning a mock response.
+
+            This is necessary because we'd like to verify that the Skytap XBlock:
+
+            - Disables the button for launching an exercise environment when clicked.
+            - Shows a spinner while processing the launch request.
+
+            If the new tab opens too quickly, the corresponding checks will fail.
+            """
+            time.sleep(1)
+            mock_response = Mock()
+            mock_response.json.return_value = {
                 "ErrorExists": "false",
                 "SkytapURL": sharing_portal_url,
             }
+            return mock_response
+
+        with patch('xblock_skytap.skytap.requests.post', new=mock_post):
             launch_button.click()
 
-        self.wait_until_number_of_tabs(2)
+            # Verify that button for launching exercise environment is disabled
+            # and spinner is visible:
+            self.wait_until_disabled(launch_button)
+            self.wait_until_visible(spinner)
+            # Verify that browser opened a new tab:
+            self.wait_until_number_of_tabs(2)
 
-        # Sharing portal is already visible, but we need to make sure
-        # that Selenium is looking at the new tab as well:
-        self.switch_to_tab(1)
+            # Sharing portal is already visible, but we need to make sure
+            # that Selenium is looking at the new tab as well:
+            self.switch_to_tab(1)
 
-        self.assertEqual(self.driver.current_url, sharing_portal_url)
+            # Verify that new tab is showing sharing portal:
+            self.assertEqual(self.driver.current_url, sharing_portal_url)
+
+            # Go back to original tab
+            self.switch_to_tab(0)
+
+            # Verify that button for launching exercise environment is clickable
+            # and spinner is hidden:
+            self.wait_until_clickable(launch_button)
+            self.wait_until_hidden(spinner)

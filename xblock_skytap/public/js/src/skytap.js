@@ -34,13 +34,29 @@ function SkytapXBlock(runtime, element) {
         launchXHR = $.post(handlerUrl, JSON.stringify(keyboardLayout))
             .success(function(response) {
                 var url = response.sharing_portal_url;
-                var sharingPortal = window.open(url, '_blank');
-                if (sharingPortal === null) {
-                    alert(
-                        gettext("The browser's popup blocker prevented the exercise environment from being launched.")
-                    );
+
+                /*
+                 The standard behaviour is to open the exercise environment in a new tab using a popup,
+                 to allow the user to keep the course tab open too. However on iOS devices, popups are
+                 blocked by default and the user is not informed that the popup failed to open.
+                 Therefore for iOS devices a redirect is used instead.
+                 */
+                var iOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/);
+                if (iOS) {
+                    // simply redirect for mobile Safari
+                    window.location = url;
                 } else {
-                    sharingPortal.focus();
+                    // desktop browsers offer an easy way to allow the popup so being blocked is ok
+                    var sharingPortal = window.open(url, '_blank');
+                    if (sharingPortal == null) {
+                        // use '==' instead of '===' to test for both null (from desktop browsers blocking the popup)
+                        // and also undefined (from mobile Safari refusing to show the popup)
+                        alert(
+                            gettext("The browser's popup blocker prevented the exercise environment from being launched.")
+                        );
+                    } else {
+                        sharingPortal.focus();
+                    }
                 }
             })
             .error(function(jqXHR, textStatus, errorThrown) {

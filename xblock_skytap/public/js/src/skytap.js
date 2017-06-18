@@ -37,13 +37,16 @@ function SkytapXBlock(runtime, element) {
 
                 /*
                  The standard behaviour is to open the exercise environment in a new tab using a popup,
-                 to allow the user to keep the course tab open too. However on iOS devices, popups are
-                 blocked by default and the user is not informed that the popup failed to open.
-                 Therefore for iOS devices a redirect is used instead.
+                 to allow the user to keep the course tab open too. However on iOS devices for example,
+                 popups are blocked by default and the user is not informed that the popup failed to open.
+                 Therefore for iOS devices a redirect is used instead. For consistency this is done for all
+                 mobile devices.
                  */
-                var iOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/);
-                if (iOS) {
-                    // simply redirect for mobile Safari
+                var isiOS = navigator.userAgent.match(/(iPod|iPhone|iPad)/i);
+                var isAndroid = navigator.userAgent.match(/(android)/i);
+                var isWindows = navigator.userAgent.match(/(Windows Phone|iemobile)/i);
+                if (isiOS || isAndroid || isWindows) {
+                    // simply redirect for mobile devices
                     window.location = url;
                 } else {
                     // desktop browsers offer an easy way to allow the popup so being blocked is ok

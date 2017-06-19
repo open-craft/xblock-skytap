@@ -46,17 +46,15 @@ function SkytapXBlock(runtime, element) {
                 var isAndroid = navigator.userAgent.match(/(android)/i);
                 var isWindows = navigator.userAgent.match(/(Windows Phone|iemobile)/i);
                 if (isiOS || isAndroid || isWindows) {
-                    // simply redirect for mobile devices
+                    // Simply redirect for mobile devices.
                     window.location = url;
                 } else {
-                    // desktop browsers offer an easy way to allow the popup so being blocked is ok
+                    // Desktop browsers offer an easy way to allow the popup so being blocked is ok.
                     var sharingPortal = window.open(url, '_blank');
-                    if (sharingPortal == null) {
-                        // use '==' instead of '===' to test for both null (from desktop browsers blocking the popup)
-                        // and also undefined (from mobile Safari refusing to show the popup)
-                        alert(
-                            gettext("The browser's popup blocker prevented the exercise environment from being launched.")
-                        );
+                    if (sharingPortal === undefined || sharingPortal === null) {
+                        // Use '==' instead of '===' to test for both null (from desktop browsers blocking the popup)
+                        // and also undefined (from mobile Safari refusing to show the popup).
+                        alert(gettext("The browser's popup blocker prevented the exercise environment from being launched."));
                     } else {
                         sharingPortal.focus();
                     }

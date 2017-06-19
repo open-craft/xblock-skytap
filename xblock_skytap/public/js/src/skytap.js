@@ -52,7 +52,7 @@ function SkytapXBlock(runtime, element) {
                     // Desktop browsers offer an easy way to allow the popup so being blocked is ok.
                     var sharingPortal = window.open(url, '_blank');
                     if (sharingPortal === undefined || sharingPortal === null) {
-                        // Use '==' instead of '===' to test for both null (from desktop browsers blocking the popup)
+                        // Need to test for both null (from desktop browsers blocking the popup)
                         // and also undefined (from mobile Safari refusing to show the popup).
                         alert(gettext("The browser's popup blocker prevented the exercise environment from being launched."));
                     } else {

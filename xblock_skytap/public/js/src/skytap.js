@@ -21,8 +21,7 @@ function SkytapXBlock(runtime, element) {
     launchButton.on('click', function(e) {
         e.preventDefault();
 
-        var handlerUrl = runtime.handlerUrl(element, 'launch'),
-            keyboardLayout = launchForm.find('select').val();
+        var handlerUrl = runtime.handlerUrl(element, 'launch');
 
         if (launchXHR) {
             launchXHR.abort();
@@ -31,7 +30,7 @@ function SkytapXBlock(runtime, element) {
         launchSpinner.show();
         launchButton.prop('disabled', true);
 
-        launchXHR = $.post(handlerUrl, JSON.stringify(keyboardLayout))
+        launchXHR = $.post(handlerUrl, JSON.stringify({}))
             .success(function(response) {
                 var url = response.sharing_portal_url;
 

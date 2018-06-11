@@ -8,7 +8,6 @@ import time
 
 from mock import Mock, patch
 
-from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 from xblockutils.resources import ResourceLoader
@@ -41,18 +40,6 @@ class TestSkytap(StudioEditableBaseTest):
         """
         self.browser.execute_script("$(document).html(' ');")
 
-    def find_menu(self, index):
-        """
-        Locate menu for selecting keyboard layout that sits at `index` in the list of menus and return it.
-        """
-        return self.find_menus()[index]
-
-    def find_menus(self):
-        """
-        Locate menus for selecting keyboard layout and return them.
-        """
-        return [Select(menu) for menu in self.element.find_elements_by_tag_name("select")]
-
     def find_launch_button(self, index):
         """
         Locate button for launching exercise environment that sits at `index` in the list of buttons and return it.
@@ -84,44 +71,6 @@ class TestSkytap(StudioEditableBaseTest):
         """
         tab = self.driver.window_handles[index]
         self.driver.switch_to.window(tab)
-
-    def assert_selected_option(self, menu, expected_value, expected_text):
-        """
-        Assert that selected option from `menu` matches `expected_value` and `expected_text`.
-        """
-        selected_option = menu.first_selected_option
-        selected_option_value = selected_option.get_attribute("value")
-        selected_option_text = selected_option.text.strip()
-        self.assertEqual(selected_option_value, expected_value)
-        self.assertEqual(selected_option_text, expected_text)
-
-    def test_keyboard_layouts(self):
-        """
-        Test that menu for selecting keyboard layout defaults to appropriate value.
-
-        - When accessing Skytap XBlock instance for the first time,
-          menu should default to "English (US)".
-        - On subsequent visits, menu should default to keyboard layout that
-          was selected when learner last clicked button for launching exercise environment,
-          across different instances of the Skytap XBlock.
-        """
-        self.load_scenario("xml/skytap_multiple.xml")
-
-        menus = self.find_menus()
-        for menu in menus:
-            self.assert_selected_option(menu, "us", "English (US)")
-
-        menu = self.find_menu(0)
-        menu.select_by_visible_text("Norwegian")
-
-        launch_button = self.find_launch_button(0)
-        launch_button.click()
-
-        self.load_scenario("xml/skytap_multiple.xml")
-
-        menus = self.find_menus()
-        for menu in menus:
-            self.assert_selected_option(menu, "no", "Norwegian")
 
     @patch('xblock_skytap.SkytapXBlock.get_boomi_url')
     @patch('xblock_skytap.SkytapXBlock.get_current_course')

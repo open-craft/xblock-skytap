@@ -2,19 +2,6 @@
 <div class="skytap-block">
   <h3>{% trans "Open the Exercise Environment Portal" %}</h3>
   <form class="skytap-launch-form">
-    <div>
-      <label>
-        <span>{% trans "Select your preferred keyboard layout" %}:</span>
-        <select name="keyboard_layout">
-          {% for language_code, language_name in keyboard_layouts %}
-            <option value="{{ language_code }}"
-                    {% if language_code == preferred_keyboard_layout %}selected{% endif %}>
-              {{ language_name }}
-            </option>
-          {% endfor %}
-        </select>
-      </label>
-    </div>
     <div class="skytap-action">
       <button type="button" class="skytap-launch">
         {% trans "Open" %}

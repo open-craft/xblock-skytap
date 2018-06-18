@@ -35,26 +35,8 @@ from .utils import _  # pylint: disable=unused-import
 log = logging.getLogger(__name__)
 loader = ResourceLoader(__name__)
 
-DEFAULT_KEYBOARD_LAYOUTS = {  # Sorted by language code
-    "de": "German",
-    "de-ch": "German-Switzerland",
-    "es": "Spanish",
-    "fi": "Finnish",
-    "fr": "French",
-    "fr-be": "French-Belgium",
-    "fr-ch": "French-Switzerland",
-    "is": "Icelandic",
-    "it": "Italian",
-    "jp": "Japanese",
-    "nl-be": "Dutch-Belgium",
-    "no": "Norwegian",
-    "pt": "Polish",
-    "uk": "English (UK)",
-    "us": "English (US)",
-}
-
-
 # Classes ###########################################################
+
 
 @XBlock.wants("settings")
 @XBlock.wants("user")
@@ -75,11 +57,6 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
 
     # User state
 
-    preferred_keyboard_layout = String(
-        scope=Scope.preferences,
-        default="us",
-    )
-
     editable_fields = ("display_name",)
 
     block_settings_key = "skytap"
@@ -88,42 +65,6 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         """ Translate text. """
         return self.runtime.service(self, "i18n").ugettext(text)
 
-    def get_keyboard_layouts(self):
-        """
-        Get available keyboard layouts from settings service, and return them.
-
-        When launching an exercise environment a learner can choose their preferred keyboard layout
-        from the list of available keyboard layouts.
-
-        Settings must specify information about available keyboard layouts
-        as a mapping from language codes to language names.
-
-        Example:
-
-        XBLOCK_SETTINGS: {
-            "skytap": {
-                "keyboard_layouts": {
-                    "nl-be": "Dutch-Belgium",
-                    "uk": "English (UK)",
-                    "us": "English (US)",
-                    ...
-                }
-            }
-        }
-        """
-        xblock_settings = self.get_xblock_settings(default={})
-        if xblock_settings:
-            return xblock_settings.get("keyboard_layouts", DEFAULT_KEYBOARD_LAYOUTS)
-        return DEFAULT_KEYBOARD_LAYOUTS
-
-    @property
-    def sorted_keyboard_layouts(self):
-        """
-        Return list of available keyboard layouts, sorted by language name.
-        """
-        keyboard_layouts = self.get_keyboard_layouts()
-        return sorted(keyboard_layouts.items(), key=lambda i: i[1])
-
     def student_view(self, context):
         """
         View shown to students.
@@ -131,8 +72,6 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         context = context.copy() if context else {}
         fragment = Fragment()
         context["display_name"] = self.display_name
-        context["keyboard_layouts"] = self.sorted_keyboard_layouts
-        context["preferred_keyboard_layout"] = self.preferred_keyboard_layout
         fragment.add_content(loader.render_template("templates/skytap.html", context))
         fragment.add_css_url(
             self.runtime.local_resource_url(self, "public/css/skytap.css")
@@ -212,11 +151,10 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         raise JsonHandlerError(500, message)
 
     @XBlock.json_handler
-    def launch(self, keyboard_layout, suffix=""):
+    def launch(self, data, suffix=""):
         """
         Launch Skytap environment and return the resulting sharing portal URL.
         """
-        self.preferred_keyboard_layout = keyboard_layout
 
         # Gather information from the runtime and settings
         current_user = self.get_current_user()
@@ -238,7 +176,6 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
             boomi_url,
             json={
                 'email': current_user_email,
-                'keyboard_layout': keyboard_layout,
                 'course_name': current_course_name,
                 'course_run': current_course_run,
             },

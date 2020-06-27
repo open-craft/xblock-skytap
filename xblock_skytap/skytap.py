@@ -14,7 +14,7 @@ for opening the sharing portal link in a new browser tab.
 from __future__ import absolute_import
 import base64
 import logging
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 import requests
 from simplejson import JSONDecodeError

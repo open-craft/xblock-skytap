@@ -8,7 +8,7 @@ import json
 
 import ddt
 import httpretty
-from mock import Mock
+from unittest.mock import Mock
 
 from xblock.field_data import DictFieldData
 
@@ -55,7 +55,7 @@ class TestSkytap(CreateVmMockMixin):
         """
         Helper method for calling the launch method and asserting an expected response dict.
         """
-        response = self.block.launch(request=Mock(method='POST', body=json.dumps('de')))
+        response = self.block.launch(request=Mock(method='POST', body=json.dumps('de').encode()))
 
         self.assertEqual(response.status_code, code)
         self.assertDictEqual(response.json, expected)

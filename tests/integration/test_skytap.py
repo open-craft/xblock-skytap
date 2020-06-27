@@ -6,7 +6,7 @@ Integration tests for the Skytap XBlock.
 
 import time
 
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from selenium.webdriver.support.ui import WebDriverWait
 

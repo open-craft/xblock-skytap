@@ -5,16 +5,22 @@ jobs:
       - image: circleci/python:3.8.0
     steps:
       - checkout
-      - restore_cache:
-          key: dependencies-{{ checksum "circle.yml" }}-{{ checksum "requirements.txt" }}-{{ checksum "test-requirements.txt" }}
+      - run:
+          name: Install Python 3.5
+          command: |
+            sudo apt-get update
+            sudo apt-get install build-essential libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
+            cd /usr/src
+            sudo wget https://www.python.org/ftp/python/3.5.9/Python-3.5.9.tgz
+            sudo tar xzf Python-3.5.9.tgz
+            cd Python-3.5.9
+            sudo ./configure --enable-optimizations
+            sudo make altinstall
+            cd ~
       - run:
           name: Install tox
           command: |
-            pip install tox
-      - save_cache:
-          key: dependencies-{{ checksum "circle.yml" }}-{{ checksum "requirements.txt" }}-{{ checksum "test-requirements.txt" }}
-          paths:
-            - "venv"
+            sudo pip install tox
       - run:
           name: Run tests
           command: |

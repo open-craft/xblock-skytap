@@ -3,6 +3,7 @@ reports=no
 
 [FORMAT]
 max-line-length=120
+max-parents=20
 
 [OPTIONS]
 good-names=_,loader

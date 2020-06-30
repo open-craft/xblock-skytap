@@ -23,7 +23,7 @@ def package_data(pkg, root_list):
 
 setup(
     name='xblock-skytap',
-    version='0.1',
+    version='0.2',
     description='Skytap XBlock',
     packages=['xblock_skytap'],
     install_requires=[

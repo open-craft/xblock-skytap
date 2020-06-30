@@ -2,36 +2,26 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:2.7.14-browsers
+      - image: circleci/python:3.8.0
     steps:
       - checkout
-      - restore_cache:
-          key: dependencies-{{ checksum "circle.yml" }}-{{ checksum "requirements.txt" }}-{{ checksum "test-requirements.txt" }}
       - run:
-          name: Install Python deps in a venv
+          name: Install Python 3.5
           command: |
-            virtualenv venv
-            . venv/bin/activate
-            pip install -U pip wheel
-            # Temporarily pin setuptools to a specific version.
-            # See commit message of https://github.com/open-craft/problem-builder/commit/51277a34fb426724616618c1afdb893ab2de4c6b for more info:
-            pip install setuptools==24.3.1
-            pip install -r requirements.txt
-            pip install -r test-requirements.txt
-            pip install -r venv/src/xblock-sdk/requirements/base.txt
-            pip install -r venv/src/xblock-sdk/requirements/test.txt
-            pip install -e .
-            mkdir var
-      - save_cache:
-          key: dependencies-{{ checksum "circle.yml" }}-{{ checksum "requirements.txt" }}-{{ checksum "test-requirements.txt" }}
-          paths:
-            - "venv"
+            sudo apt-get update
+            sudo apt-get install build-essential libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
+            cd /usr/src
+            sudo wget https://www.python.org/ftp/python/3.5.9/Python-3.5.9.tgz
+            sudo tar xzf Python-3.5.9.tgz
+            cd Python-3.5.9
+            sudo ./configure --enable-optimizations
+            sudo make altinstall
+            cd ~
+      - run:
+          name: Install tox
+          command: |
+            sudo pip install tox
       - run:
           name: Run tests
           command: |
-            . venv/bin/activate
-            pep8 xblock_skytap --max-line-length=120;
-            pep8 tests --max-line-length=120;
-            pylint xblock_skytap --disable=all --enable=function-redefined,undefined-variable,unused-import,unused-variable;
-            pylint tests --disable=all --enable=function-redefined,undefined-variable,unused-import,unused-variable;
-            SELENIUM_BROWSER=chrome python run_tests.py
+            tox

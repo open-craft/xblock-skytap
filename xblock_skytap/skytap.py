@@ -12,9 +12,10 @@ for opening the sharing portal link in a new browser tab.
 # Imports ###########################################################
 
 from __future__ import absolute_import
+
 import base64
 import logging
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 import requests
 from simplejson import JSONDecodeError
@@ -26,9 +27,9 @@ from xblockutils.resources import ResourceLoader
 from xblockutils.settings import XBlockWithSettingsMixin
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from .exceptions import BoomiConfigurationInvalidError, BoomiConfigurationMissingError
+from .exceptions import (BoomiConfigurationInvalidError,
+                         BoomiConfigurationMissingError)
 from .utils import _  # pylint: disable=unused-import
-
 
 # Globals ###########################################################
 
@@ -151,7 +152,7 @@ class SkytapXBlock(StudioEditableXBlockMixin, XBlockWithSettingsMixin, XBlock):
         raise JsonHandlerError(500, message)
 
     @XBlock.json_handler
-    def launch(self, data, suffix=""):
+    def launch(self, data, suffix=""):  # pylint: disable=unused-argument
         """
         Launch Skytap environment and return the resulting sharing portal URL.
         """

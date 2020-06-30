@@ -27,9 +27,6 @@ class CreateVmMockMixin(unittest.TestCase):
     Mocks for 'createVm' Boomi endpoint responses.
     """
 
-    def setUp(self):
-        super(CreateVmMockMixin, self).setUp()
-
     @staticmethod
     def mock_createvm(mock_url, sharing_portal_url="https://skytap.example.com/sharing/portal/url"):
         """

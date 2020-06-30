@@ -5,10 +5,10 @@ Unit tests for the Skytap XBlock.
 # Imports ###########################################################
 
 import json
+from unittest.mock import Mock
 
 import ddt
 import httpretty
-from unittest.mock import Mock
 
 from xblock.field_data import DictFieldData
 
@@ -55,10 +55,10 @@ class TestSkytap(CreateVmMockMixin):
         """
         Helper method for calling the launch method and asserting an expected response dict.
         """
-        response = self.block.launch(request=Mock(method='POST', body=json.dumps('de').encode()))
+        response = self.block.launch(request=Mock(method='POST', body=json.dumps('de').encode()))  # pylint: disable=unexpected-keyword-arg,no-value-for-parameter
 
-        self.assertEqual(response.status_code, code)
-        self.assertDictEqual(response.json, expected)
+        self.assertEqual(response.status_code, code)  # pylint: disable=no-member
+        self.assertDictEqual(response.json, expected)  # pylint: disable=no-member
 
     @ddt.unpack
     @ddt.data(

@@ -30,9 +30,12 @@ class TestSkytap(StudioEditableBaseTest):
     default_css_selector = "div.skytap-block"
 
     def load_scenario(self, path, params=None):
+        """
+        Loads XBlock Scenario
+        """
         scenario = loader.render_template(path, params)
         self.set_scenario_xml(scenario)
-        self.element = self.go_to_view("student_view")
+        self.element = self.go_to_view("student_view")  # pylint: disable=attribute-defined-outside-init
 
     def refresh_page(self):
         """
@@ -86,7 +89,7 @@ class TestSkytap(StudioEditableBaseTest):
         launch_button = self.find_launch_button(0)
         spinner = self.find_spinner()
 
-        def mock_post(*args, **kwargs):
+        def mock_post(*args, **kwargs):  # pylint: disable=unused-argument
             """
             Function to use for patching `requests.post`.
 

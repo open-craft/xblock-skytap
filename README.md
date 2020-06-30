@@ -2,7 +2,8 @@
 
 ## What is it?
 
-An XBlock for integrating [Open edX](https://open.edx.org/) and [Skytap](https://www.skytap.com/).
+An XBlock for integrating [Open edX](https://open.edx.org/) and [Skytap](https://www.skytap.com/). 
+Our client uses this XBlock to create virtual machines so learners can practice what they are learning in the course.
 
 ## Support
 
@@ -38,7 +39,6 @@ tox
 
 1. Start your *edX devstack*
 2. Once the *edX devstack* is up, run `make studio-shell`
-3. `source ../venvs/edxapp/bin/activate`
 4. `sudo -u edxapp /edx/bin/pip.edxapp install "git+https://github.com/open-craft/xblock-skytap@master#egg=xblock-skytap"`
-5. `docker-compose restart studio`
-6. Repeat steps 2 till 5 using `lms` instead of `studio`, ei. `make lms-shell` and `docker-compose restart lms`.
+5. Exit the shell and run `make studio-restart`
+6. Repeat steps 2 till 5 using `lms` instead of `studio`, ei. `make lms-shell` and `make lms-restart`.
